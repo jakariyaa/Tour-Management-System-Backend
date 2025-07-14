@@ -1,5 +1,6 @@
 import cors from "cors";
 import express, { Application } from "express";
+import { globalErrorHandler } from "./app/middlewares/globalErrorHandler";
 import { RoutesHandler } from "./app/routes";
 
 const app: Application = express();
@@ -8,5 +9,7 @@ app.use(express.json());
 app.use(cors({ origin: "http://localhost:5173" }));
 
 app.use("/api/v1", RoutesHandler);
+
+app.use(globalErrorHandler);
 
 export default app;

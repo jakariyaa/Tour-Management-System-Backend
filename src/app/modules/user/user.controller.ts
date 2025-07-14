@@ -1,8 +1,8 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { constants } from "http2";
 import { UserService } from "./user.service";
 
-const createUser = async (req: Request, res: Response) => {
+const createUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = await UserService.createUser(req.body);
     res.status(constants.HTTP_STATUS_CREATED).json({
@@ -11,11 +11,7 @@ const createUser = async (req: Request, res: Response) => {
       data: user,
     });
   } catch (error) {
-    res.status(constants.HTTP_STATUS_BAD_REQUEST).json({
-      success: false,
-      message: error,
-      data: null,
-    });
+    next(error);
   }
 };
 
