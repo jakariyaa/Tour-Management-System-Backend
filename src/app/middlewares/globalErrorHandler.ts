@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { constants } from "http2";
+import AppError from "../errorHelpers/AppError";
 
 export const globalErrorHandler = (
   error: Error,
@@ -7,8 +8,12 @@ export const globalErrorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  const statusCode = constants.HTTP_STATUS_INTERNAL_SERVER_ERROR;
-  const message = "Something went wrong.";
+  let statusCode = constants.HTTP_STATUS_INTERNAL_SERVER_ERROR;
+  const message = `Something went wrong ${error.message}`;
+
+  if (error instanceof AppError) {
+    statusCode = constants.HTTP_STATUS_BAD_REQUEST;
+  }
 
   res.status(statusCode).json({
     success: false,
