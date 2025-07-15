@@ -9,10 +9,11 @@ export const globalErrorHandler = (
   next: NextFunction
 ) => {
   let statusCode = constants.HTTP_STATUS_INTERNAL_SERVER_ERROR;
-  const message = `Something went wrong ${error.message}`;
+  let message = `Something went wrong: ${error.name}`;
 
   if (error instanceof AppError) {
-    statusCode = constants.HTTP_STATUS_BAD_REQUEST;
+    statusCode = error.statusCode;
+    message = error.message;
   }
 
   res.status(statusCode).json({

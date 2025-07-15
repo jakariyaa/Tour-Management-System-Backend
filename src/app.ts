@@ -11,7 +11,7 @@ app.use(cors({ origin: "http://localhost:5173" }));
 
 app.use("/api/v1", RoutesHandler);
 
-app.use(globalErrorHandler);
 app.use(unknownEndpoint);
+app.use(globalErrorHandler);
 
 export default app;
