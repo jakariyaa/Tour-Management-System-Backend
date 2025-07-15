@@ -26,10 +26,10 @@ process.on("SIGINT", () => {
   console.log("Received SIGINT signal. Server shutting down...");
   if (server) {
     server.close(() => {
-      process.exit(1);
+      process.exit(0);
     });
   } else {
-    process.exit(1);
+    process.exit(0);
   }
 });
 
@@ -37,10 +37,10 @@ process.on("SIGTERM", () => {
   console.log("Received SIGTERM signal. Server shutting down...");
   if (server) {
     server.close(() => {
-      process.exit(1);
+      process.exit(0);
     });
   } else {
-    process.exit(1);
+    process.exit(0);
   }
 });
 
