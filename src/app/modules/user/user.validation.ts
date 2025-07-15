@@ -73,7 +73,3 @@ export const updateUserZodSchema = z.object({
     .optional(),
 });
 
-export const UserValidation = {
-  createUserZodSchema,
-  updateUserZodSchema,
-};
