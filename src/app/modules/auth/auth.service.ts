@@ -1,8 +1,7 @@
 import bcrypt from "bcryptjs";
 import { constants } from "http2";
-import jwt from "jsonwebtoken";
-import { env } from "../../config/env";
 import AppError from "../../errorHelpers/AppError";
+import { generateToken } from "../../utils/jwt";
 import { IUser } from "../user/user.interface";
 import { User } from "../user/user.model";
 
@@ -29,9 +28,7 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
     name: user.name,
   };
 
-  const token = jwt.sign(jwtPayload, env.JWT_SECRET, {
-    expiresIn: "24h",
-  });
+  const token = generateToken(jwtPayload);
 
   return {
     name: user.name,
