@@ -8,6 +8,9 @@ export const globalErrorHandler = (
   res: Response,
   next: NextFunction
 ) => {
+  // eslint-disable-next-line no-console
+  console.log(`An error occured: ${error.name} \n`, error);
+
   let statusCode = constants.HTTP_STATUS_INTERNAL_SERVER_ERROR;
   let message = `Something went wrong: ${error.name}`;
 
