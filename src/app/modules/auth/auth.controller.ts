@@ -3,14 +3,12 @@ import { constants } from "http2";
 import AppError from "../../errorHelpers/AppError";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
+import { setAuthCookie } from "../../utils/setCookie";
 import { AuthService } from "./auth.service";
 
 const credentialsLogin = catchAsync(async (req: Request, res: Response) => {
   const data = await AuthService.credentialsLogin(req.body);
-  res.cookie("refreshToken", data.refreshToken, {
-    httpOnly: true,
-    secure: true,
-  });
+  setAuthCookie(res, data);
   sendResponse(res, {
     statusCode: constants.HTTP_STATUS_OK,
     success: true,
@@ -29,6 +27,7 @@ const generateNewAccessToken = catchAsync(
       );
     }
     const data = await AuthService.generateNewAccessToken(refreshToken);
+    setAuthCookie(res, data);
     sendResponse(res, {
       statusCode: constants.HTTP_STATUS_OK,
       success: true,
@@ -38,7 +37,19 @@ const generateNewAccessToken = catchAsync(
   }
 );
 
+const credentialsLogout = catchAsync(async (req: Request, res: Response) => {
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+  sendResponse(res, {
+    statusCode: constants.HTTP_STATUS_OK,
+    success: true,
+    message: "User logged out successfully",
+    data: null,
+  });
+});
+
 export const AuthController = {
   credentialsLogin,
   generateNewAccessToken,
+  credentialsLogout,
 };
