@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { constants } from "http2";
+import passport from "passport";
+import { env } from "../../config/env";
 import AppError from "../../errorHelpers/AppError";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
@@ -48,8 +50,47 @@ const credentialsLogout = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const resetPassword = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user) {
+    throw new AppError(constants.HTTP_STATUS_UNAUTHORIZED, "User not found");
+  }
+  await AuthService.resetPassword(req.user, req.body);
+  sendResponse(res, {
+    statusCode: constants.HTTP_STATUS_OK,
+    success: true,
+    message: "Password reset successfully",
+    data: null,
+  });
+});
+
+const googleController = catchAsync(async (req: Request, res: Response) => {
+  const redirectUrl = req.query.redirect || "/";
+  passport.authenticate("google", {
+    scope: ["email", "profile"],
+    state: redirectUrl as string,
+  })(req, res);
+});
+
+const googleCallbackController = catchAsync(
+  async (req: Request, res: Response) => {
+    let redirectUrl = req.query.state as string;
+    if (redirectUrl.startsWith("/")) {
+      redirectUrl = redirectUrl.slice(1);
+    }
+    if (!req.user) {
+      throw new AppError(constants.HTTP_STATUS_UNAUTHORIZED, "User not found");
+    }
+    const authTokens = await AuthService.googleCallback(req.user);
+    setAuthCookie(res, authTokens);
+    res.redirect(`${env.FRONTEND_URL}/${redirectUrl}`);
+  }
+);
+
 export const AuthController = {
   credentialsLogin,
   generateNewAccessToken,
   credentialsLogout,
+  resetPassword,
+  googleController,
+  googleCallbackController,
 };

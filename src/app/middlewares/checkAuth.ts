@@ -28,7 +28,7 @@ export const checkAuth =
       if (!user) {
         throw new AppError(
           constants.HTTP_STATUS_UNAUTHORIZED,
-          "Invalid token. user not found"
+          "User not found"
         );
       }
 
