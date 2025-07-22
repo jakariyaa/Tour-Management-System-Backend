@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { constants } from "http2";
 import passport from "passport";
 import { env } from "../../config/env";
@@ -6,18 +6,39 @@ import AppError from "../../errorHelpers/AppError";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { setAuthCookie } from "../../utils/setCookie";
+import { createUserToken } from "../../utils/userToken";
 import { AuthService } from "./auth.service";
 
-const credentialsLogin = catchAsync(async (req: Request, res: Response) => {
-  const data = await AuthService.credentialsLogin(req.body);
-  setAuthCookie(res, data);
-  sendResponse(res, {
-    statusCode: constants.HTTP_STATUS_OK,
-    success: true,
-    message: "User logged in successfully",
-    data: data,
-  });
-});
+const credentialsLogin = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // const data = await AuthService.credentialsLogin(req.body);
+    await passport.authenticate(
+      "local",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      async (err: any, user: any, info: any) => {
+        if (err) {
+          return next(err);
+        }
+        if (!user) {
+          return next(
+            new AppError(constants.HTTP_STATUS_UNAUTHORIZED, info.message)
+          );
+        }
+        const userTokens = await createUserToken(user);
+        setAuthCookie(res, userTokens);
+        sendResponse(res, {
+          statusCode: constants.HTTP_STATUS_OK,
+          success: true,
+          message: "User logged in successfully",
+          data: {
+            user,
+            ...userTokens,
+          },
+        });
+      }
+    )(req, res, next);
+  }
+);
 
 const generateNewAccessToken = catchAsync(
   async (req: Request, res: Response) => {
@@ -63,13 +84,15 @@ const resetPassword = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const googleController = catchAsync(async (req: Request, res: Response) => {
-  const redirectUrl = req.query.redirect || "/";
-  passport.authenticate("google", {
-    scope: ["email", "profile"],
-    state: redirectUrl as string,
-  })(req, res);
-});
+const googleController = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const redirectUrl = req.query.redirect || "/";
+    passport.authenticate("google", {
+      scope: ["email", "profile"],
+      state: redirectUrl as string,
+    })(req, res, next);
+  }
+);
 
 const googleCallbackController = catchAsync(
   async (req: Request, res: Response) => {
