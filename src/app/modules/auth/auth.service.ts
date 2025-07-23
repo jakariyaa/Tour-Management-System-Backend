@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { constants } from "http2";
-import AppError from "../../errorHelpers/AppError";
+import AppError from "../../error/AppError";
 import {
   createUserToken,
   generateNewAccessTokenWithRefreshToken,

@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { constants } from "http2";
 import { JwtPayload } from "jsonwebtoken";
 import { env } from "../config/env";
-import AppError from "../errorHelpers/AppError";
+import AppError from "../error/AppError";
 import { User } from "../modules/user/user.model";
 import { verifyToken } from "../utils/jwt";
 
@@ -39,7 +39,7 @@ export const checkAuth =
         );
       }
 
-      req.user = user;
+      req.user = user.toObject();
       next();
     } catch (error) {
       next(error);

@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { constants } from "http2";
 import passport from "passport";
 import { env } from "../../config/env";
-import AppError from "../../errorHelpers/AppError";
+import AppError from "../../error/AppError";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { setAuthCookie } from "../../utils/setCookie";
