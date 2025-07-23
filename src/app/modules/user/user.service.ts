@@ -6,11 +6,6 @@ import { User } from "./user.model";
 
 const createUser = async (payload: Partial<IUser>) => {
   const { email, password, ...rest } = payload;
-  const userExists = await User.findOne({ email });
-
-  if (userExists) {
-    throw new AppError(constants.HTTP_STATUS_CONFLICT, "User already exists");
-  }
   const authProvider: IAuthProvider = {
     provider: "credentials",
     providerId: email as string,
