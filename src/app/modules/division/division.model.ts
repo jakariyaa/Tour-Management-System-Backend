@@ -14,4 +14,9 @@ const divisionSchema = new Schema<IDivision>(
   }
 );
 
+divisionSchema.pre("validate", async function (next) {
+  this.slug = this.name.toLowerCase().replace(/\s+/g, "-").concat("-division");
+  next();
+});
+
 export const Division = model<IDivision>("Division", divisionSchema);

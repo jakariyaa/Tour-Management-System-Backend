@@ -4,6 +4,7 @@ import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import { ZodError } from "zod";
 import { env } from "../config/env";
 import AppError from "../error/AppError";
+import { handleJsonParseError } from "../error/handleJsonParseError";
 import { handleJwtError } from "../error/handleJwtError";
 import { handleMongooseError } from "../error/handleMongooseError";
 import { handleZodError } from "../error/handleZodError";
@@ -22,7 +23,7 @@ export const globalErrorHandler = (
 
   let statusCode = constants.HTTP_STATUS_INTERNAL_SERVER_ERROR;
   let message = "Something went wrong!";
-  let errorSources: { path: string; message: string }[] | undefined = [];
+  let errorSources: { path: string; message: string }[] | undefined = undefined;
 
   if (error instanceof ZodError) {
     const simplifiedError = handleZodError(error);
@@ -46,6 +47,10 @@ export const globalErrorHandler = (
     statusCode = simplifiedError.statusCode;
     message = simplifiedError.message;
     errorSources = simplifiedError.errors;
+  } else if (error.name === "SyntaxError" && error.message.includes("JSON")) {
+    const simplifiedError = handleJsonParseError();
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
   } else if (error instanceof AppError) {
     statusCode = error.statusCode;
     message = error.message;

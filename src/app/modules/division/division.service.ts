@@ -4,9 +4,6 @@ import { IDivision } from "./division.interface";
 import { Division } from "./division.model";
 
 const createDivision = async (payload: IDivision) => {
-  const baseSlug = payload.name.toLowerCase().split(" ").join("-");
-  const slug = `${baseSlug}-division`;
-  payload.slug = slug;
   const division = await Division.create(payload);
   return division;
 };
@@ -38,11 +35,6 @@ const updateDivision = async (id: string, payload: Partial<IDivision>) => {
       constants.HTTP_STATUS_CONFLICT,
       "Division name already exists"
     );
-  }
-  if (payload.name) {
-    const baseSlug = payload.name.toLowerCase().split(" ").join("-");
-    const slug = `${baseSlug}-division`;
-    payload.slug = slug;
   }
   division.set(payload);
   await division.save();
