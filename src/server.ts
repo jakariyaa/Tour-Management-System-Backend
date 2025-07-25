@@ -4,6 +4,7 @@ import { Server } from "http";
 import mongoose from "mongoose";
 import app from "./app";
 import { env } from "./app/config/env";
+import { seedSuperAdmin } from "./app/utils/seedSuperAdmin";
 
 let server: Server;
 
@@ -20,16 +21,19 @@ const startServer = async () => {
   }
 };
 
-startServer();
+(async () => {
+  startServer();
+  seedSuperAdmin();
+})();
 
 process.on("SIGINT", () => {
   console.log("Received SIGINT signal. Server shutting down...");
   if (server) {
     server.close(() => {
-      process.exit(1);
+      process.exit(0);
     });
   } else {
-    process.exit(1);
+    process.exit(0);
   }
 });
 
@@ -37,10 +41,10 @@ process.on("SIGTERM", () => {
   console.log("Received SIGTERM signal. Server shutting down...");
   if (server) {
     server.close(() => {
-      process.exit(1);
+      process.exit(0);
     });
   } else {
-    process.exit(1);
+    process.exit(0);
   }
 });
 
